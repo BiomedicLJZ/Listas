@@ -2,6 +2,7 @@
 #define SLLIST_H
 
 #include <iostream>
+#include <initializer_list>
 
 template<typename T>
 class SLList {
@@ -37,11 +38,21 @@ public:
             return node != other.node;
         }
 
+        Node* getNode() const {
+            return node;
+        }
+
     private:
         Node* node;
     };
 
     SLList() : head(nullptr), tail(nullptr) {}
+
+    SLList(std::initializer_list<T> list): head(nullptr), tail(nullptr) {
+        for(const T& data : list) {
+            push_back(data);
+        }
+    }
 
     ~SLList() {
         clear();
@@ -70,6 +81,42 @@ public:
             tail = newNode;
         } else {
             head = tail = newNode;
+        }
+    }
+    void insert(const T& data, size_t position) {
+        if (position == 0) {
+            push_front(data);
+        } else {
+            auto it = begin();
+            for (size_t i = 0; i < position - 1 && it != end(); ++i) {
+                ++it;
+            }
+            if (it != end()) {
+                Node* newNode = new Node(data, it.getNode()->next);
+                it.getNode()->next = newNode;
+                if (newNode->next == nullptr) {
+                    tail = newNode;
+                }
+            }
+        }
+    }
+
+    void erase(size_t position) {
+        if (position == 0) {
+            pop_front();
+        } else {
+            Node* temp = head;
+            for (size_t i = 0; i < position - 1 && temp->next != nullptr; ++i) {
+                temp = temp->next;
+            }
+            if (temp->next != nullptr) {
+                Node* nodeToDelete = temp->next;
+                temp->next = temp->next->next;
+                if (nodeToDelete == tail) {
+                    tail = temp;
+                }
+                delete nodeToDelete;
+            }
         }
     }
 
